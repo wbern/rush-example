@@ -12,6 +12,7 @@ RUN git clone https://github.com/microsoft/rush-example.git .
 
 # RUN node ./common/scripts/install-run-rush.js build
 
+RUN chmod +rx ./docker-scripts/build.sh
 RUN sh ./docker-scripts/build.sh
 
 # If you are building your code for production
