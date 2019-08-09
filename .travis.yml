@@ -18,6 +18,10 @@ script:
   # - echo 'Building...' && echo -en 'travis_fold:start:build\\r'
   # - node common/scripts/install-run-rush.js rebuild --verbose
   # - echo -en 'travis_fold:end:build\\r'
+  
+  - docker pull wbern/rush-example:$TRAVIS_BRANCH
+  - export CONTAINER_ID=$(docker run -d wbern/rush-example:$TRAVIS_BRANCH /bin/sh -c "sh ./docker-scripts/build.sh")
+  - docker commit $CONTAINER_ID wbern/rush-example:$TRAVIS_BRANCH
   - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
-  - docker build -t wbern/rush-example:$TRAVIS_BRANCH .
+  # - docker build -t wbern/rush-example:$TRAVIS_BRANCH .
   - docker push wbern/rush-example:$TRAVIS_BRANCH
