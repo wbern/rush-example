@@ -22,6 +22,7 @@ script:
   - echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin
   - docker pull wbern/rush-example:$TRAVIS_BRANCH
   - export CONTAINER_ID=$(docker run -d wbern/rush-example:$TRAVIS_BRANCH /bin/sh -c "sh ./docker-scripts/build.sh")
+  - echo "the id is $CONTAINER_ID"
   - docker commit $CONTAINER_ID wbern/rush-example:$TRAVIS_BRANCH
   # - docker build -t wbern/rush-example:$TRAVIS_BRANCH .
   - docker push wbern/rush-example:$TRAVIS_BRANCH
