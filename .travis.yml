@@ -23,6 +23,6 @@ script:
   - docker pull wbern/rush-example:$TRAVIS_BRANCH
   - docker run -d wbern/rush-example:$TRAVIS_BRANCH /bin/sh -c "sh ./docker-scripts/build.sh"
   - echo "the id is $CONTAINER_ID"
-  - docker commit $(docker container ls -l --format "{{.ID}}") wbern/rush-example:$TRAVIS_BRANCH
+  # - docker commit $(docker container ls -l --format "{{.ID}}") wbern/rush-example:$TRAVIS_BRANCH
   # - docker build -t wbern/rush-example:$TRAVIS_BRANCH .
-  - docker push wbern/rush-example:$TRAVIS_BRANCH
+  # - docker push wbern/rush-example:$TRAVIS_BRANCH
