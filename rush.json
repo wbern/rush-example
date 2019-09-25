@@ -343,6 +343,18 @@
       "packageName": "my-toolchain",
       "projectFolder": "tools/my-toolchain",
       "reviewCategory": "tools"
+    },
+
+    {
+      "packageName": "lerna-execute-test",
+      "projectFolder": "tools/lerna-execute-test",
+      "reviewCategory": "tools"
+    },
+
+    {
+      "packageName": "package-selector",
+      "projectFolder": "tools/package-selector",
+      "reviewCategory": "tools"
     }
   ]
 }
