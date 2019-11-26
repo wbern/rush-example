@@ -12,19 +12,31 @@ const { RushConfiguration } = require("@microsoft/rush-lib");
 
 const rushConfig = RushConfiguration.loadFromDefaultLocation();
 
-const readdir = util.promisify(fs.readdir);
+// const readdir = util.promisify(fs.readdir);
 
-function getPaths(pattern, defaultItem) {
+async function listNodes(exclude) {
+  let scripts = ["[go back]"];
+
+  rushConfig.projects.forEach(project =>
+    Object.keys(project.packageJson.scripts || {}).forEach(scriptName =>
+      scripts.push(
+        project.packageName +
+          " -> " +
+          scriptName.replace(" -> ", ":FUN_GUY_WAS_HERE:")
+      )
+    )
+  );
+
+  return scripts.filter(name => !exclude.includes(name));
+}
+
+function getRushProjects(pattern, defaultItem, excludeItems = []) {
   const fuzzOptions = {
     pre: style.green.open,
     post: style.green.close
   };
 
-  async function listNodes(nodePath, level) {
-    return rushConfig.projects.map(project => project.packageName);
-  }
-
-  const nodes = listNodes();
+  const nodes = listNodes(excludeItems);
   const filterPromise = nodes.then(nodeList => {
     const filteredNodes = fuzzy
       .filter(pattern || "", nodeList, fuzzOptions)
@@ -37,11 +49,12 @@ function getPaths(pattern, defaultItem) {
   return filterPromise;
 }
 
-class InquirerFuzzyPath extends InquirerAutocomplete {
+class InquirerFuzzyRushProjects extends InquirerAutocomplete {
   constructor(question, rl, answers) {
     const {} = question;
     const questionBase = Object.assign({}, question, {
-      source: (_, pattern) => getPaths(pattern, question.default)
+      source: (_, pattern) =>
+        getRushProjects(pattern, question.default, question.exclude)
     });
     super(questionBase, rl, answers);
   }
@@ -67,4 +80,8 @@ class InquirerFuzzyPath extends InquirerAutocomplete {
   }
 }
 
-module.exports = InquirerFuzzyPath;
+module.exports = {
+  InquirerFuzzyRushProjects,
+  listNodes,
+  getRushProjects
+};

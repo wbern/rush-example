@@ -13,7 +13,7 @@ dependencies:
   inquirer: 5.2.0
   inquirer-autocomplete-prompt: 0.12.2
   rimraf: 2.6.3
-  rxjs: 6.5.3
+  rxjs: 5.5.12
   strip-ansi: 4.0.0
   typescript: 3.5.3
   whatwg-fetch: 3.0.0
@@ -1466,12 +1466,12 @@ packages:
       inquirer: 5.2.0
       inquirer-autocomplete-prompt: 0.12.2
       rx: 4.1.0
-      rxjs: 6.5.3
+      rxjs: 5.5.12
       strip-ansi: 4.0.0
     dev: false
     name: '@rush-temp/package-selector'
     resolution:
-      integrity: sha512-yfk82tuh7Yi07sBa45GVzdIOu6EyFic1EDpL3YiWjQL2IvN0QJLuOUihExsx15cVLRiem2z9t01RdFgb5cgO1w==
+      integrity: sha512-dkrPxjp5x+qAfxgr3zC1lFlfhHQxJr4WjvaLRbvhiWJ/cNNBkiDv8iOQ89y9BmlouxhkrNryg+r3GVTNBBZdag==
       tarball: 'file:projects/package-selector.tgz'
     version: 0.0.0
 registry: ''
@@ -1490,7 +1490,7 @@ specifiers:
   inquirer: ^5.2.0
   inquirer-autocomplete-prompt: ^0.12.2
   rimraf: ^2.6.2
-  rxjs: ^6.5.3
+  rxjs: ^5.5.2
   strip-ansi: ^4.0.0
   typescript: ^3.0.3
   whatwg-fetch: ^3.0.0
