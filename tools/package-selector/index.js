@@ -94,6 +94,7 @@ inquirer.prompt(prompts).ui.process.subscribe(
                 console.log('ok, have fun!')
                 emitter.complete()
             } else if (q.answer === 'add-item') {
+                console.log(q)
                 emitter.next(createAddQuestion(selectedItems))
             } else if (q.answer === 'edit-items') {
                 emitter.next({

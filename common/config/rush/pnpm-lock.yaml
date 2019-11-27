@@ -7,6 +7,7 @@ dependencies:
   '@rush-temp/my-toolchain': 'file:projects/my-toolchain.tgz'
   '@rush-temp/package-selector': 'file:projects/package-selector.tgz'
   '@types/node': 10.14.15
+  ansi-escapes: 3.2.0
   ansi-styles: 3.2.1
   colors: 1.3.3
   fuzzy: 0.1.3
@@ -1461,6 +1462,7 @@ packages:
   'file:projects/package-selector.tgz':
     dependencies:
       '@microsoft/rush-lib': 5.11.1
+      ansi-escapes: 3.2.0
       ansi-styles: 3.2.1
       fuzzy: 0.1.3
       inquirer: 5.2.0
@@ -1471,7 +1473,7 @@ packages:
     dev: false
     name: '@rush-temp/package-selector'
     resolution:
-      integrity: sha512-dkrPxjp5x+qAfxgr3zC1lFlfhHQxJr4WjvaLRbvhiWJ/cNNBkiDv8iOQ89y9BmlouxhkrNryg+r3GVTNBBZdag==
+      integrity: sha512-NliKjHL8V/UlSZibjidJR4wfePM4Z3lACi/SVO+5phAnceWMK94jCFc263hUbV9j2p/EUD7QsIfj3mx18YIAEw==
       tarball: 'file:projects/package-selector.tgz'
     version: 0.0.0
 registry: ''
@@ -1484,6 +1486,7 @@ specifiers:
   '@rush-temp/my-toolchain': 'file:./projects/my-toolchain.tgz'
   '@rush-temp/package-selector': 'file:./projects/package-selector.tgz'
   '@types/node': ^10.9.4
+  ansi-escapes: ^3.0.0
   ansi-styles: ^3.2.1
   colors: ^1.3.2
   fuzzy: ^0.1.3

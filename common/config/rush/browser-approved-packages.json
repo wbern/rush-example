@@ -11,6 +11,10 @@
       "allowedCategories": [ "tools" ]
     },
     {
+      "name": "ansi-escapes",
+      "allowedCategories": [ "tools" ]
+    },
+    {
       "name": "ansi-styles",
       "allowedCategories": [ "tools" ]
     },
