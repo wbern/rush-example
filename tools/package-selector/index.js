@@ -9,7 +9,7 @@ let emitter
 
 let createStatusQuestion = (things = ['[nothing]'], canAdd = true) => ({
     name: 'status',
-    type: 'expand',
+    type: 'list',
     message:
         'Will execute following:\n' +
         things.map(t => '    * ' + t + '\n').join('') +
@@ -22,26 +22,25 @@ let createStatusQuestion = (things = ['[nothing]'], canAdd = true) => ({
     //     return true;
     //   }
     // },
-    default: 'y',
     choices: [
         {
             key: 's',
-            name: 'Start',
+            name: 'Run the scripts',
             value: 'start',
         },
         {
             key: 'a',
-            name: 'Add a package script to the list',
+            name: 'Add one or more package scripts to the list',
             value: 'add-item',
         },
         {
             key: 'e',
-            name: 'Edit listed package scripts',
+            name: 'Remove one or more currently listed package scripts',
             value: 'edit-items',
         },
         {
             key: 'd',
-            name: 'Remove package script from the list',
+            name: 'Remove single package script from the list',
             value: 'remove-item',
         },
         {
@@ -49,19 +48,31 @@ let createStatusQuestion = (things = ['[nothing]'], canAdd = true) => ({
             name: 'Quit',
             value: 'quit',
         },
-    ].filter(({ value }) => !(value === 'add-item' && canAdd === false)),
+    ].filter(({ value }) => {
+        if (value === 'add-item' && canAdd === false) {
+            return false
+        } else if (value === 'edit-items' && selectedItems.length === 0) {
+            return false
+        } else if (value === 'remove-item' && selectedItems.length === 0) {
+            return false
+        } else if (value === 'start' && selectedItems.length === 0) {
+            return false
+        }
+        return true
+    }),
 })
 
 let selectedItems = []
 
 var prompts = Observable.create(function(e) {
     emitter = e
-    emitter.next(
-        createStatusQuestion(
-            selectedItems,
-            selectedItems.length === 0 || listNodes(selectedItems).length > 0
-        )
-    )
+    // emitter.next(
+    //     createStatusQuestion(
+    //         selectedItems,
+    //         selectedItems.length === 0 || listNodes(selectedItems).length > 0
+    //     )
+    // )
+    emitter.next(createAddQuestion(selectedItems))
 })
 
 const createAddQuestion = (exclude = []) => ({
@@ -143,7 +154,7 @@ inquirer.prompt(prompts).ui.process.subscribe(
             })
         } else if (q.name === 'edit-items') {
             selectedItems = selectedItems.filter(item =>
-                item.includes(q.answer)
+                q.answer.includes(item)
             )
             emitter.next(createStatusQuestion(selectedItems))
         } else if (q.name === 'remove-item') {
