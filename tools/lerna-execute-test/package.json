@@ -4,6 +4,7 @@
     "description": "An example toolchain used to build projects in this repo",
     "license": "MIT",
     "scripts": {
+      "build": "",
       "start": "node index.js"
     },
     "dependencies": {

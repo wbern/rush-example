@@ -15,20 +15,52 @@ const rushConfig = RushConfiguration.loadFromDefaultLocation()
 
 // const readdir = util.promisify(fs.readdir);
 
-async function listNodes(exclude) {
+const separator = ' -> '
+
+var runAsync = require('run-async')
+
+async function serializeProjectsAndScripts(projectScriptsToExclude) {
     let scripts = ['[go back]']
 
     rushConfig.projects.forEach(project =>
-        Object.keys(project.packageJson.scripts || {}).forEach(scriptName =>
-            scripts.push(
-                project.packageName +
-                    ' -> ' +
-                    scriptName.replace(' -> ', ':FUN_GUY_WAS_HERE:')
-            )
-        )
+        Object.keys(project.packageJson.scripts || {}).forEach(scriptName => {
+            if (
+                projectScriptsToExclude.every(
+                    p =>
+                        p.project.packageName !== project.packageName ||
+                        p.scriptName !== scriptName
+                )
+            ) {
+                scripts.push(project.packageName + separator + scriptName)
+            }
+        })
     )
 
-    return scripts.filter(name => !exclude.includes(name))
+    return scripts
+}
+
+function deserializeProjectsAndScripts(lines) {
+    let projects = []
+
+    if (!Array.isArray(lines)) {
+        throw new Error('invalid answer object')
+    }
+
+    lines.forEach(line => {
+        let projectName = line.split(separator)[0]
+        let scriptName = line
+            .split(separator)
+            .slice(1)
+            .join(separator)
+
+        let project = rushConfig.projectsByName.get(projectName)
+
+        if (project) {
+            projects.push({ project, scriptName })
+        }
+    })
+
+    return projects
 }
 
 function getRushProjects(pattern, defaultItem, excludeItems = []) {
@@ -37,7 +69,7 @@ function getRushProjects(pattern, defaultItem, excludeItems = []) {
         post: style.green.close,
     }
 
-    const nodes = listNodes(excludeItems)
+    const nodes = serializeProjectsAndScripts(excludeItems)
     const filterPromise = nodes.then(nodeList => {
         const filteredNodes = fuzzy
             .filter(pattern || '', nodeList, fuzzOptions)
@@ -59,7 +91,7 @@ class InquirerFuzzyRushProjects extends InquirerAutocomplete {
         })
         super(questionBase, rl, answers)
 
-        this.initialSearchText = question.searchText;
+        this.initialSearchText = question.searchText
 
         if (question.searchText !== undefined) {
             // search for something immediately
@@ -77,7 +109,7 @@ class InquirerFuzzyRushProjects extends InquirerAutocomplete {
             return
         }
 
-        return super.search(searchTerm).then(() => {
+        super.search(searchTerm).then(() => {
             this.currentChoices.getChoice = choiceIndex => {
                 const choice = Choices.prototype.getChoice.call(
                     this.currentChoices,
@@ -92,13 +124,75 @@ class InquirerFuzzyRushProjects extends InquirerAutocomplete {
         })
     }
 
+    // onSubmit(line, a, b, c) {
+    //     // super.onSubmit(stripAnsi(line))
+    //     super.onSubmit(deserializeProjectsAndScripts([stripAnsi(line)]))
+    // }
+
+    // override the base onSubmit function
     onSubmit(line) {
-        super.onSubmit(stripAnsi(line))
+        var self = this
+        if (typeof this.opt.validate === 'function' && this.opt.suggestOnly) {
+            var validationResult = this.opt.validate(line)
+            if (validationResult !== true) {
+                this.render(
+                    validationResult || 'Enter something, tab to autocomplete!'
+                )
+                return
+            }
+        }
+
+        var choice = {}
+        if (
+            this.currentChoices.length <= this.selected &&
+            !this.opt.suggestOnly
+        ) {
+            this.rl.write(line)
+            this.search(line)
+            return
+        }
+
+        if (this.opt.suggestOnly) {
+            choice.value = line || this.rl.line
+            this.answer = line || this.rl.line
+            this.answerName = line || this.rl.line
+            this.shortAnswer = line || this.rl.line
+            this.rl.line = ''
+        } else {
+            choice = this.currentChoices.getChoice(this.selected)
+
+            if (choice.value === '[go back]') {
+                choice.value = null
+            } else {
+                choice.value = deserializeProjectsAndScripts([
+                    stripAnsi(choice.value),
+                ])
+            }
+
+            this.answer = choice.value
+            this.answerName = choice.name
+            this.shortAnswer = choice.short
+        }
+
+        runAsync(this.opt.filter, function(err, value) {
+            choice.value = value
+            self.answer = value
+
+            if (self.opt.suggestOnly) {
+                self.shortAnswer = value
+            }
+
+            self.status = 'answered'
+            // Rerender prompt
+            self.render()
+            self.screen.done()
+            self.done(choice.value)
+        })(choice.value)
     }
 }
 
 module.exports = {
     InquirerFuzzyRushProjects,
-    listNodes,
+    serializeProjectsAndScripts,
     getRushProjects,
 }

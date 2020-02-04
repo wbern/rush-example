@@ -29,7 +29,7 @@
        * English verb (e.g. "deploy"). Use a hyphen to separate words (e.g. "upload-docs"). A group of related commands
        * can be prefixed with a colon (e.g. "docs:generate", "docs:deploy", "docs:serve", etc).
        */
-      "name": "my-bulk-command",
+      "name": "serve",
 
       /**
        * (Required) A short summary of the custom command to be shown when printing command line
@@ -62,7 +62,7 @@
        * simultaneously for multiple projects.  Similar to "rush build", regardless of parallelism
        * projects will not start processing until their dependencies have completed processing.
        */
-      "enableParallelism": false,
+      "enableParallelism": true,
 
       /**
        * Normally projects will be processed according to their dependency order: a given project will not start
@@ -77,7 +77,7 @@
        * the custom command name.  To disable this check, set "ignoreMissingScript" to true;
        * projects with a missing definition will be skipped.
        */
-      "ignoreMissingScript": false,
+      "ignoreMissingScript": true,
 
       /**
        * When invoking shell scripts, Rush uses a heuristic to distinguish errors from warnings:

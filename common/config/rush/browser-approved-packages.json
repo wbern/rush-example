@@ -11,12 +11,40 @@
       "allowedCategories": [ "tools" ]
     },
     {
+      "name": "@vue/cli-plugin-babel",
+      "allowedCategories": [ "production" ]
+    },
+    {
+      "name": "@vue/cli-plugin-eslint",
+      "allowedCategories": [ "production" ]
+    },
+    {
+      "name": "@vue/cli-service",
+      "allowedCategories": [ "production" ]
+    },
+    {
       "name": "ansi-escapes",
       "allowedCategories": [ "tools" ]
     },
     {
       "name": "ansi-styles",
       "allowedCategories": [ "tools" ]
+    },
+    {
+      "name": "babel-eslint",
+      "allowedCategories": [ "production" ]
+    },
+    {
+      "name": "core-js",
+      "allowedCategories": [ "production" ]
+    },
+    {
+      "name": "eslint",
+      "allowedCategories": [ "production" ]
+    },
+    {
+      "name": "eslint-plugin-vue",
+      "allowedCategories": [ "production" ]
     },
     {
       "name": "fuzzy",
@@ -35,6 +63,14 @@
       "allowedCategories": [ "production" ]
     },
     {
+      "name": "node-emoji",
+      "allowedCategories": [ "tools" ]
+    },
+    {
+      "name": "run-async",
+      "allowedCategories": [ "tools" ]
+    },
+    {
       "name": "rx",
       "allowedCategories": [ "tools" ]
     },
@@ -45,6 +81,14 @@
     {
       "name": "strip-ansi",
       "allowedCategories": [ "tools" ]
+    },
+    {
+      "name": "vue",
+      "allowedCategories": [ "production" ]
+    },
+    {
+      "name": "vue-template-compiler",
+      "allowedCategories": [ "production" ]
     },
     {
       "name": "whatwg-fetch",
