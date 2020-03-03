@@ -1,5 +1,5 @@
 const inquirer = require('inquirer')
-const { InquirerFuzzyRushProjects, serializeProjectsAndScripts } = require('./lib.js')
+const { InquirerFuzzyRushProjects } = require('./prompt.js')
 
 const responseHandler = require('./response-handler.js')
 const questionGenerator = require('./question-generator.js')

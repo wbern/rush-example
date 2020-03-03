@@ -1,5 +1,4 @@
 const questionGenerator = require('./question-generator.js')
-const { serializeProjectsAndScripts } = require('./lib.js')
 
 module.exports = {
     status: (q, emitter, addedProjectScripts) => {
@@ -18,14 +17,15 @@ module.exports = {
                     name: 'edit-items',
                     choices: [
                         // new inquirer.Separator("Category here"),
-                        ...addedProjectScripts.map(name => ({
-                            name,
+                        ...addedProjectScripts.map(value => ({
+                            name: value.displayName,
+                            value,
                             checked: false,
                         })),
                     ],
                 })
                 break
-            case 'remoove-item':
+            case 'remove-item':
                 emitter.next({
                     type: 'list',
                     name: 'remove-item',
@@ -45,34 +45,47 @@ module.exports = {
     },
     'add-item': (q, emitter, addedProjectScripts) => {
         // added a new item to the list
-        if (q.answer) {
-            q.answer.forEach(answer => addedProjectScripts.push(answer))
+        if (q.answer.type === 'rush-project') {
+            addedProjectScripts.push(q.answer)
         }
 
-        console.log(addedProjectScripts.join(', '))
+        // console.log(addedProjectScripts.join(', '))
 
-        serializeProjectsAndScripts(addedProjectScripts).then(
-            itemsLeftToAdd => {
-                if (q.answer) {
-                    emitter.next(
-                        questionGenerator['add-item'](addedProjectScripts)
-                    )
-                } else {
-                    emitter.next(
-                        questionGenerator.status(addedProjectScripts, {
-                            canAdd:
-                                addedProjectScripts.length === 0 ||
-                                itemsLeftToAdd.length > 0,
-                        })
-                    )
-                }
-            }
-        )
+        if (q.answer.type !== 'cancel') {
+            emitter.next(questionGenerator['add-item'](addedProjectScripts))
+        } else {
+            emitter.next(
+                questionGenerator.status(addedProjectScripts, {
+                    canAdd: true,
+                    // canAdd:
+                    //     addedProjectScripts.length === 0 ||
+                    //     itemsLeftToAdd.length > 0,
+                })
+            )
+        }
     },
     'edit-items': (q, emitter, addedProjectScripts) => {
         addedProjectScripts = addedProjectScripts.filter(
-            item => !q.answer.includes(item)
+            value =>
+                !q.answer.some(
+                    projectToKeep =>
+                        projectToKeep.displayName === value.displayName
+                )
         )
+
+        for (let i = 0; i < addedProjectScripts.length; i++) {
+            let toBeRemoved = !q.answer.some(
+                projectToKeep =>
+                    projectToKeep.displayName ===
+                    addedProjectScripts[i].displayName
+            )
+
+            if (toBeRemoved) {
+                addedProjectScripts.splice(i, 1)
+                i--
+            }
+        }
+
         emitter.next(questionGenerator.status(addedProjectScripts))
     },
     'remove-item': (q, emitter, addedProjectScripts) => {

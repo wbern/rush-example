@@ -32,7 +32,7 @@
     },
     {
       "name": "babel-eslint",
-      "allowedCategories": [ "production" ]
+      "allowedCategories": [ "production", "tools" ]
     },
     {
       "name": "core-js",
@@ -40,7 +40,7 @@
     },
     {
       "name": "eslint",
-      "allowedCategories": [ "production" ]
+      "allowedCategories": [ "production", "tools" ]
     },
     {
       "name": "eslint-plugin-vue",
@@ -84,6 +84,10 @@
     },
     {
       "name": "vue",
+      "allowedCategories": [ "production" ]
+    },
+    {
+      "name": "vue-custom-element",
       "allowedCategories": [ "production" ]
     },
     {

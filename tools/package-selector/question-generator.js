@@ -1,21 +1,19 @@
 var emoji = require('node-emoji')
 
 module.exports = {
-    status: (items = [], options) => ({
+    status: (addedProjectScripts = [], options = {}) => ({
         name: 'status',
         type: 'list',
         message:
-            'Preferences:\n' +
-            '`rush update`: ' +
-            (options.rushUpdateEnabled !== true ? 'Disabled' : 'Enabled') +
-            '\n' +
-            '`rush build`: ' +
-            (options.rushBuildEnabled !== true ? 'Disabled' : 'Enabled') +
-            '\n\n' +
             'Scripts scheduled to run:\n' +
-            items.map(t => emoji.get('package') + ' ' + t + '\n').join('') +
+            addedProjectScripts
+                .map(
+                    project =>
+                        emoji.get('package') + ' ' + project.displayName + '\n'
+                )
+                .join('') +
             '\nWhat next?',
-        default: items.length > 0 ? 'y' : 'a',
+        default: addedProjectScripts.length > 0 ? 'y' : 'a',
 
         choices: [
             {
@@ -23,30 +21,6 @@ module.exports = {
                 name: 'Run the scripts',
                 value: 'start',
             },
-            options.rushUpdateEnabled !== true
-                ? {
-                      key: 'u',
-                      name: 'Enable `rush update` before script execution',
-                      value: 'rush-update-enable',
-                  }
-                : {
-                      key: 'u',
-                      name:
-                          'Disable running `rush update` before script execution',
-                      value: 'rush-update-disable',
-                  },
-            options.rushBuildEnabled !== true
-                ? {
-                      key: 'b',
-                      name: 'Enable `rush build` before script execution',
-                      value: 'rush-build-enable',
-                  }
-                : {
-                      key: 'b',
-                      name:
-                          'Disable running `rush build` before script execution',
-                      value: 'rush-build-disable',
-                  },
             {
                 key: 'a',
                 name: 'Add one or more package scripts to the list',
@@ -72,17 +46,18 @@ module.exports = {
                 return false
             } else if (
                 value === 'edit-items' &&
-                (items.length === 0 || options.canEdit === false)
+                (addedProjectScripts.length === 0 || options.canEdit === false)
             ) {
                 return false
             } else if (
                 value === 'remove-item' &&
-                (items.length === 0 || options.canRemove === false)
+                (addedProjectScripts.length === 0 ||
+                    options.canRemove === false)
             ) {
                 return false
             } else if (
                 value === 'start' &&
-                (items.length === 0 || options.canStart === false)
+                (addedProjectScripts.length === 0 || options.canStart === false)
             ) {
                 return false
             }
