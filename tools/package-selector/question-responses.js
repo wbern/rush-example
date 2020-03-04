@@ -6,6 +6,9 @@ module.exports = {
             case 'request:start':
                 emitter.complete()
                 break
+            case 'request:add-pre-items':
+                emitter.next(questions['add-pre-items-question'](items))
+                break
             case 'request:add-items':
                 emitter.next(questions['add-items-question'](items))
                 break

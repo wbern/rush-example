@@ -24,7 +24,12 @@ module.exports = {
             },
             {
                 key: 'a',
-                name: 'Add one or more scripts to the list',
+                name: 'Add pre-scripts to execute and complete before the other scripts.',
+                value: 'request:add-pre-items',
+            },
+            {
+                key: 'a',
+                name: 'Add scripts to the list for continous execution.',
                 value: 'request:add-items',
             },
             {
@@ -64,11 +69,21 @@ module.exports = {
             return true
         }),
     }),
+    'add-pre-items-question': (exclude = []) => ({
+        type: 'fuzzypath',
+        name: 'add-pre-items-question',
+        message:
+            "Search for scripts to execute and complete, before the other scripts.",
+        exclude,
+        suggestOnly: false,
+        // custom options
+        pre: true,
+    }),
     'add-items-question': (exclude = []) => ({
         type: 'fuzzypath',
         name: 'add-items-question',
         message:
-            "Select a package you'd like to add for execution, or select go back.",
+            "Search for scripts to run continously.",
         exclude,
         // default: "",
         suggestOnly: false,
