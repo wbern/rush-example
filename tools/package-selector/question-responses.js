@@ -23,16 +23,8 @@ module.exports = {
         }
     },
     'add-items-question-response': (response, emitter, items) => {
-        // added a new item to the list
-        if (response.answer.type === 'rush-project') {
-            items.push(response.answer)
-        }
-
-        // console.log(items.join(', '))
-
-        if (response.answer.type !== 'cancel') {
-            emitter.next(questions['add-items-question'](items))
-        } else {
+        if (response.answer.type === 'cancel') {
+            // back to main menu
             emitter.next(
                 questions['main-menu-question'](items, {
                     canAdd: true,
@@ -41,6 +33,11 @@ module.exports = {
                     //     itemsLeftToAdd.length > 0,
                 })
             )
+        } else {
+            // added a new item to the list
+            items.push(response.answer)
+
+            emitter.next(questions['add-items-question'](items))
         }
     },
     'remove-items-question-response': (response, emitter, items) => {

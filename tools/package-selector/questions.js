@@ -24,17 +24,17 @@ module.exports = {
             },
             {
                 key: 'a',
-                name: 'Add one or more package scripts to the list',
+                name: 'Add one or more scripts to the list',
                 value: 'request:add-items',
             },
             {
                 key: 'e',
-                name: 'Remove one or more currently listed package scripts',
+                name: 'Remove one or more currently listed scripts',
                 value: 'request:edit-items',
             },
             {
                 key: 'd',
-                name: 'Remove single package script from the list',
+                name: 'Remove single script from the list',
                 value: 'request:remove-item',
             },
             {

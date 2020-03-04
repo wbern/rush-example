@@ -26,10 +26,11 @@ async function mapRushProjects(filterText, defaultItem, excludeItems = []) {
     rushConfig.projects.forEach(project =>
         Object.keys(project.packageJson.scripts || {}).forEach(scriptName => {
             if (
-                excludeItems.every(
+                !excludeItems.some(
                     p =>
-                        p.project.packageName !== project.packageName ||
-                        p.scriptName !== scriptName
+                        p.type === 'rush-project' &&
+                        p.project.packageName === project.packageName &&
+                        p.scriptName === scriptName
                 )
             ) {
                 rushChoices.push({
@@ -135,11 +136,11 @@ class InquirerFuzzyRushProjects extends InquirerAutocomplete {
             return
         }
 
-        const shellText = 'run shell command: '
-        const appendingTotal = shellText + searchTerm
+        const prefix = 'shell command -> '
+        const appendingTotal = prefix + searchTerm
 
         let currentManualChoiceIndex = this.currentChoices.choices.findIndex(
-            c => c.name.startsWith(shellText)
+            c => c.name.startsWith(prefix)
         )
 
         let currentManualChoice = {
@@ -148,7 +149,8 @@ class InquirerFuzzyRushProjects extends InquirerAutocomplete {
             short: appendingTotal,
             value: {
                 type: 'shell',
-                command: shellText,
+                command: searchTerm,
+                displayName: appendingTotal,
             },
         }
 
@@ -162,11 +164,13 @@ class InquirerFuzzyRushProjects extends InquirerAutocomplete {
                 )
             }
         } else if (currentManualChoiceIndex === -1) {
+            // was not in list, add it
             this.currentChoices.choices.splice(1, 0, currentManualChoice)
             this.currentChoices.realChoices.splice(1, 0, {
                 ...currentManualChoice,
             })
         } else {
+            // in list, update it
             this.currentChoices.choices[
                 currentManualChoiceIndex
             ] = currentManualChoice

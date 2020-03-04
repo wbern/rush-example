@@ -4,7 +4,8 @@
     "description": "An example toolchain used to build projects in this repo",
     "license": "MIT",
     "scripts": {
-        "build": "",
+        "build": "echo hello",
+        "build-with-dependencies": "rush build --to package-selector --to package-selector",
         "start": "node index.js"
     },
     "eslintConfig": {
