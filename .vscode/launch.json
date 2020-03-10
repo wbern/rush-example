@@ -7,14 +7,22 @@
         {
             "type": "node",
             "request": "launch",
+            "name": "Launch Package-Selector",
+            "smartStep": true,
+            "internalConsoleOptions": "neverOpen",
+            "console": "integratedTerminal",
+            "program": "${workspaceFolder}/tools/package-selector/index.js",
+            "skipFiles": ["<node_internals>/**"]
+        },
+        {
+            "type": "node",
+            "request": "launch",
             "internalConsoleOptions": "neverOpen",
             "smartStep": true,
             "name": "Launch Program",
             "console": "integratedTerminal",
             "program": "${workspaceFolder}\\${relativeFile}",
-            "outFiles": [
-                "${workspaceFolder}/**/*.js"
-            ]
+            "outFiles": ["${workspaceFolder}/**/*.js"]
         }
     ]
 }
