@@ -10,6 +10,9 @@ const style = require('ansi-styles')
 const fuzzy = require('fuzzy')
 
 const { RushConfiguration } = require('@microsoft/rush-lib')
+const {
+    CommandLineConfiguration,
+} = require('@microsoft/rush-lib/lib/api/CommandLineConfiguration')
 
 const rushConfig = RushConfiguration.loadFromDefaultLocation()
 
@@ -19,7 +22,7 @@ const separator = ' -> '
 
 var runAsync = require('run-async')
 
-async function mapRushProjects(filterText, defaultItem, excludeItems = []) {
+function mapRushProjectsAndTheirScripts(excludeItems = []) {
     let rushChoices = []
 
     // list all the projects and their respective scripts
@@ -48,6 +51,66 @@ async function mapRushProjects(filterText, defaultItem, excludeItems = []) {
         })
     )
 
+    return rushChoices
+}
+
+function mapRushCommands(excludeItems = []) {
+    let choices = []
+
+    let { commands } = CommandLineConfiguration.loadFromFileOrDefault(
+        path.join(rushConfig.commonRushConfigFolder, 'command-line.json')
+    )
+
+    // add some specials...
+    commands.push({
+        commandKind: 'special',
+        name: 'update',
+    })
+
+    commands.forEach(command => {
+        if (
+            !excludeItems.some(
+                c =>
+                    c.type === 'rush-command' &&
+                    c.name === command.packageName &&
+                    c.scriptName === scriptName
+            )
+        ) {
+            choices.push({
+                name:
+                    'rush command' +
+                    separator +
+                    command.name +
+                    ' (' +
+                    command.commandKind +
+                    ')',
+                short:
+                    'rush command' +
+                    separator +
+                    command.name +
+                    ' (' +
+                    command.commandKind +
+                    ')',
+                value: {
+                    type: 'rush-command',
+                    command,
+                    commandName: 'rush ' + command.name,
+                    displayName:
+                        'rush command' +
+                        separator +
+                        command.name +
+                        ' (' +
+                        command.commandKind +
+                        ')',
+                },
+            })
+        }
+    })
+
+    return choices
+}
+
+function filterChoices(rushChoices, filterText, defaultItem) {
     // now filter based on search
     const filteredRushChoices =
         filterText === ''
@@ -74,8 +137,23 @@ class InquirerFuzzyRushProjects extends InquirerAutocomplete {
     constructor(question, rl, answers) {
         // const {} = question
         const questionBase = Object.assign({}, question, {
-            source: (_, pattern) =>
-                mapRushProjects(pattern, question.default, question.exclude),
+            source: async (_, pattern) => {
+                let choices = [];
+
+                choices = choices.concat(
+                    mapRushProjectsAndTheirScripts(question.exclude)
+                )
+
+                // if(this.pre) {
+                choices = choices.concat(mapRushCommands())
+                // }
+
+                return filterChoices(
+                    choices,
+                    pattern,
+                    question.default
+                )
+            },
         })
         super(questionBase, rl, answers)
 
