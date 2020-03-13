@@ -1,4 +1,5 @@
 dependencies:
+  '@microsoft/node-core-library': 3.19.3
   '@microsoft/rush-lib': 5.20.0
   '@rush-temp/package-selector': 'file:projects/package-selector.tgz'
   ansi-escapes: 3.2.0
@@ -2008,6 +2009,7 @@ packages:
       integrity: sha512-DUOKC/IhbkdLKKiV89gw9DUauTV8U/8yJl1sjf6MtDmzevLKOF2duNJ495S3MFVjqZarr+qNGCPbkg4mu4PpLw==
   'file:projects/package-selector.tgz':
     dependencies:
+      '@microsoft/node-core-library': 3.19.3
       '@microsoft/rush-lib': 5.20.0
       ansi-escapes: 3.2.0
       ansi-styles: 3.2.1
@@ -2023,11 +2025,12 @@ packages:
     dev: false
     name: '@rush-temp/package-selector'
     resolution:
-      integrity: sha512-//XwDwKDaiq2FKsbpS6qUH6SC/mfVxQelyfPn2vdY+f6L7mzdjxbE9L2KRDkHYxq/pSfOrlJ2s6+xg3XzQYb+g==
+      integrity: sha512-8cFwKEuu+hhaHnNaBE/8GhiAJVjEKPGRo7mGtBIOB8w5BniIxNq48xsUKAuHGM1UG4YSQ//ySJmE8wlBRj2SxQ==
       tarball: 'file:projects/package-selector.tgz'
     version: 0.0.0
 registry: ''
 specifiers:
+  '@microsoft/node-core-library': ^3.19.3
   '@microsoft/rush-lib': 5.20.0
   '@rush-temp/package-selector': 'file:./projects/package-selector.tgz'
   ansi-escapes: ^3.0.0

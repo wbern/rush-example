@@ -10,11 +10,73 @@ const style = require('ansi-styles')
 const fuzzy = require('fuzzy')
 
 const { RushConfiguration } = require('@microsoft/rush-lib')
+const { Utilities } = require('@microsoft/rush-lib/lib/utilities/Utilities')
+
+const { JsonFile, FileSystem } = require('@microsoft/node-core-library')
 const {
     CommandLineConfiguration,
 } = require('@microsoft/rush-lib/lib/api/CommandLineConfiguration')
+const {
+    PackageChangeAnalyzer,
+} = require('@microsoft/rush-lib/lib/logic/PackageChangeAnalyzer')
 
 const rushConfig = RushConfiguration.loadFromDefaultLocation()
+
+packageChangeAnalyzer = new PackageChangeAnalyzer(rushConfig)
+
+function _areShallowEqual(object1, object2) {
+    for (const n in object1) {
+        if (!(n in object2) || object1[n] !== object2[n]) {
+            console.debug(
+                `Found mismatch: "${n}": "${object1[n]}" !== "${object2[n]}"`
+            )
+            return false
+        }
+    }
+    for (const n in object2) {
+        if (!(n in object1)) {
+            console.debug(
+                `Found new prop in obj2: "${n}" value="${object2[n]}"`
+            )
+            return false
+        }
+    }
+    return true
+}
+
+isPackageUnchanged = (rushProject, commandToRun) => {
+    const packageDepsFilename = Utilities.getPackageDepsFilenameForCommand(
+        commandToRun
+    )
+
+    const currentDepsPath = path.join(
+        rushProject.projectRushTempFolder,
+        packageDepsFilename
+    )
+
+    const currentPackageDeps = packageChangeAnalyzer.getPackageDepsHash(
+        rushProject.packageName
+    )
+
+    if (FileSystem.exists(currentDepsPath)) {
+        try {
+            lastPackageDeps = JsonFile.load(currentDepsPath)
+        } catch (e) {
+            // Warn and ignore - treat failing to load the file as the project being not built.
+            console.log(
+                `Warning: error parsing ${this._packageDepsFilename}: ${e}. Ignoring and ` +
+                    `treating the command "${this._commandToRun}" as not run.`
+            )
+        }
+    }
+
+    return !!(
+        lastPackageDeps &&
+        currentPackageDeps &&
+        currentPackageDeps.arguments === lastPackageDeps.arguments &&
+        _areShallowEqual(currentPackageDeps.files, lastPackageDeps.files)
+    )
+}
 
 // const readdir = util.promisify(fs.readdir);
 
@@ -36,15 +98,24 @@ function mapRushProjectsAndTheirScripts(excludeItems = []) {
                         p.scriptName === scriptName
                 )
             ) {
+                let unchanged = isPackageUnchanged(project, scriptName)
+
+                let qualifiedName =
+                    (unchanged ? '' : style.yellow.open) +
+                    project.packageName +
+                    separator +
+                    scriptName +
+                    (unchanged ? '' : style.yellow.close)
+
                 rushChoices.push({
-                    name: project.packageName + separator + scriptName,
-                    short: project.packageName + separator + scriptName,
+                    name: qualifiedName,
+                    short: qualifiedName,
                     value: {
                         type: 'rush-project',
                         project: project,
                         projectName: project.packageName,
                         scriptName,
-                        displayName: project.packageName + ' -> ' + scriptName,
+                        displayName: qualifiedName,
                     },
                 })
             }
@@ -54,6 +125,42 @@ function mapRushProjectsAndTheirScripts(excludeItems = []) {
     return rushChoices
 }
 
+function mapRushCommandsForProjects(excludeItems = []) {
+    let choices = []
+
+    // list all the projects and their respective scripts
+    rushConfig.projects.forEach(project => {
+        if (
+            !excludeItems.some(
+                p =>
+                    p.type === 'rush-project-command' &&
+                    p.project.name === project.name
+            )
+        ) {
+            let qualifiedName =
+                project.packageName +
+                separator +
+                'rush build --to ' +
+                project.packageName
+
+            choices.push({
+                name: qualifiedName,
+                short: qualifiedName,
+                value: {
+                    type: 'rush-project-command',
+                    project: project,
+                    projectName: project.packageName,
+                    name: 'build --to ' + project.packageName,
+                    commandName: 'rush build --to ' + project.packageName,
+                    displayName: qualifiedName,
+                },
+            })
+        }
+    })
+
+    return choices
+}
+
 function mapRushCommands(excludeItems = []) {
     let choices = []
 
@@ -61,47 +168,32 @@ function mapRushCommands(excludeItems = []) {
         path.join(rushConfig.commonRushConfigFolder, 'command-line.json')
     )
 
-    // add some specials...
+    // add some rush specific commands...
     commands.push({
-        commandKind: 'special',
+        commandKind: 'rush-command',
         name: 'update',
+        commandName: 'rush update',
+        displayName: 'rush ' + separator + 'update',
     })
 
     commands.forEach(command => {
-        if (
-            !excludeItems.some(
-                c =>
-                    c.type === 'rush-command' &&
-                    c.name === command.packageName &&
-                    c.scriptName === scriptName
-            )
-        ) {
+        let qualifiedName =
+            'rush command' +
+            separator +
+            command.name +
+            ' (' +
+            command.commandKind +
+            ')'
+
+        if (excludeItems.every(c => c.displayName !== qualifiedName)) {
             choices.push({
-                name:
-                    'rush command' +
-                    separator +
-                    command.name +
-                    ' (' +
-                    command.commandKind +
-                    ')',
-                short:
-                    'rush command' +
-                    separator +
-                    command.name +
-                    ' (' +
-                    command.commandKind +
-                    ')',
+                name: qualifiedName,
+                short: qualifiedName,
                 value: {
                     type: 'rush-command',
                     command,
                     commandName: 'rush ' + command.name,
-                    displayName:
-                        'rush command' +
-                        separator +
-                        command.name +
-                        ' (' +
-                        command.commandKind +
-                        ')',
+                    displayName: qualifiedName,
                 },
             })
         }
@@ -138,21 +230,21 @@ class InquirerFuzzyRushProjects extends InquirerAutocomplete {
         // const {} = question
         const questionBase = Object.assign({}, question, {
             source: async (_, pattern) => {
-                let choices = [];
+                let choices = []
 
                 choices = choices.concat(
                     mapRushProjectsAndTheirScripts(question.exclude)
                 )
 
                 // if(this.pre) {
-                choices = choices.concat(mapRushCommands())
+                choices = choices.concat(mapRushCommands(question.exclude))
+
+                choices = choices.concat(
+                    mapRushCommandsForProjects(question.exclude)
+                )
                 // }
 
-                return filterChoices(
-                    choices,
-                    pattern,
-                    question.default
-                )
+                return filterChoices(choices, pattern, question.default)
             },
         })
         super(questionBase, rl, answers)
@@ -214,8 +306,8 @@ class InquirerFuzzyRushProjects extends InquirerAutocomplete {
             return
         }
 
-        const prefix = 'shell command -> '
-        const appendingTotal = prefix + searchTerm
+        const prefix = 'shell command'
+        const appendingTotal = prefix + separator + searchTerm
 
         let currentManualChoiceIndex = this.currentChoices.choices.findIndex(
             c => c.name.startsWith(prefix)

@@ -7,6 +7,10 @@
       "allowedCategories": [ "tools" ]
     },
     {
+      "name": "@microsoft/node-core-library",
+      "allowedCategories": [ "tools" ]
+    },
+    {
       "name": "@microsoft/rush-lib",
       "allowedCategories": [ "tools" ]
     },
